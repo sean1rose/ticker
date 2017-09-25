@@ -1,13 +1,8 @@
 {
-  "name": "basic-electron-react-boilerplate",
-  "version": "0.6.0",
-  "description": "Minimal and modern react+electron+webpack boilerplate",
-  "author": "Phillip Barbiero",
-  "homepage": "https://github.com/pbarbiero/basic-electron-react-boilerplate",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pbarbiero/basic-electron-react-boilerplate.git"
-  },
+  "name": "ticker",
+  "version": "0.0.1",
+  "description": "Fantasy Football News Ticker",
+  "author": "Sean Rose",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
@@ -31,6 +26,7 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "style-loader": "^0.17.0",
+    "twit": "^2.2.9",
     "webpack": "^2.5.1",
     "webpack-dev-server": "^2.4.5"
   }
