@@ -1,13 +1,14 @@
 'use strict';
 
 // Import parts of electron to use
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, Tray, Menu } = require('electron');
 const path = require('path')
 const url = require('url')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let tray;
 
 // Keep a reference for dev mode
 let dev = false;
@@ -16,12 +17,15 @@ if ( process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) 
 }
 
 function createWindow() {
+  // hide electron dock icon
+  app.dock.hide();
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1024, height: 768, show: false
+    width: 1024/2, height: 768/2, show: false, closable: true, resizable: true
   });
 
-  // and load the index.html of the app.
+  // and load the index.html of the app (webpack-bundled react web app)
   let indexPath;
   if ( dev && process.argv.indexOf('--noDevServer') === -1 ) {
     indexPath = url.format({
@@ -39,6 +43,43 @@ function createWindow() {
   }
   mainWindow.loadURL( indexPath );
 
+  // // determine platform to display correct tray icon
+  // const iconName = process.platform = 'win32' ? 'windows-icon.png' : 'iconTemplate.png';
+  // const iconPath = path.join(__dirname, `./src/assets/${iconName}`);
+  // // take iconPath and create instance of tray constructor... 
+  // tray = new Tray(iconPath, mainWindow);
+  // console.log('tray -> ', tray);
+
+  // tray.on('click', (event, bounds) => {
+  //   const { x, y } = bounds;
+  //   const { height, width } = mainWindow.getBounds();
+  //   const yPosition = process.platform === 'darwin' ? y : (y - height);
+  //   mainWindow.setBounds({
+  //     x: x - (width / 2),
+  //     y: yPosition,
+  //     height,
+  //     width
+  //   });
+
+  //   mainWindow.show();
+  //   if (dev) {
+  //     mainWindow.webContents.openDevTools();
+  //   }
+  // });
+
+  // tray.on('right-click', () => {
+  //   const menuConfig = Menu.buildFromTemplate([
+  //     {
+  //       label: 'Quit',
+  //       click: () => app.quit()
+  //     }
+  //   ])
+
+  //   this.popUpContextMenu(menuConfig);
+  // });
+
+
+  
   // Don't show until we are ready and loaded
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
@@ -47,6 +88,7 @@ function createWindow() {
       mainWindow.webContents.openDevTools();
     }
   });
+  
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
