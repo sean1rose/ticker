@@ -27,6 +27,7 @@
     "html-webpack-plugin": "^2.28.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "rss-feed-emitter": "^1.0.7",
     "style-loader": "^0.17.0",
     "twit": "^2.2.9",
     "webpack": "^2.5.1",
