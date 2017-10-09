@@ -2,7 +2,7 @@ import '../assets/css/App.css';
 import React, { Component } from 'react';
 import { consumer_key, consumer_secret, access_token, access_token_secret, timeout_ms } from '../../Config';
 import Twit from 'twit';
-import RssFeedEmitter from 'rss-feed-emitter';
+import _ from 'lodash';
 
 const T = new Twit({
   consumer_key,
@@ -13,13 +13,6 @@ const T = new Twit({
 });
 
 let stream = T.stream('user', { with: ['coupleogoats'] });
-
-let feeder = new RssFeedEmitter();
-feeder.add({
-  url: 'http://www.rotoworld.com/rss/feed.aspx?sport=nfl&ftype=news&count=12&format=rss',
-  refresh: 1000
-});
-// http://www.rotowire.com/rss/news.htm?sport=nfl
 
 let oneDayAgo = new Date().getTime() - 86400000;
 let twelveHoursAgo = new Date().getTime() - 43200000;
@@ -34,6 +27,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = INITIAL_STATE;
+
   }
   
   parseOutUrl(item) {
@@ -51,7 +45,7 @@ class App extends React.Component {
   componentDidMount() {
 
     // 1. BACK LOG of FantasyLab TWEETS
-    T.get('statuses/user_timeline', { screen_name: 'FantasyLabsNFL', count: 20, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
+    T.get('statuses/user_timeline', { screen_name: 'FantasyLabsNFL', count: 50, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
       data.forEach((item) => {
         let currentDate = new Date(item.created_at).getTime();
         if (currentDate > twelveHoursAgo){
@@ -61,56 +55,76 @@ class App extends React.Component {
             if (item.text.includes("http")){
               this.parseOutUrl(item);
             }
-            item.src = 'tweet-backlog'
+            item.src = 'tweet-backlog-FantasyLabsNFL';
             tweetsInLastHalfDay.push(item);
           }
         }
       });
       // console.log('tweets in last 1/2 day - ', tweetsInLastHalfDay);
       this.setState({
-        tweetArr: tweetsInLastHalfDay
+        // tweetArr: [...this.state.tweetArr,tweetsInLastHalfDay],
+        tweetArr: _.merge(this.state.tweetArr, tweetsInLastHalfDay)
       });
-      console.log('1. this.state.tweetArr [FINAL LIST OF INITIAL BACK LOG!!!!]- ', this.state.lastTweet, this.state.tweetArr);
+      console.log('1a. this.state.tweetArr [FINAL LIST OF INITIAL BACK LOG!!!!]- ', this.state.lastTweet, this.state.tweetArr);
     });
+
+    T.get('statuses/user_timeline', { screen_name: 'Rotoworld_Fb', count: 50, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
+      data.forEach((item) => {
+        let currentDate = new Date(item.created_at).getTime();
+        if (currentDate > twelveHoursAgo){
+          // run check to make sure tweet meets news-worthy criteria
+          if (!item.text.includes("@")){
+            // if tweet text includes url, cut out that url
+            if (item.text.includes("http")){
+              this.parseOutUrl(item);
+            }
+            item.src = 'tweet-backlog-Rotoworld_Fb';
+            tweetsInLastHalfDay.push(item);
+          }
+        }
+      });
+      // console.log('tweets in last 1/2 day - ', tweetsInLastHalfDay);
+      this.setState({
+        // tweetArr: [...this.state.tweetArr, tweetsInLastHalfDay],
+        tweetArr: _.merge(this.state.tweetArr, tweetsInLastHalfDay)
+      });
+      console.log('1b. this.state.tweetArr [FINAL LIST OF INITIAL BACK LOG!!!!]- ', this.state.lastTweet, this.state.tweetArr);
+    });
+
 
     // 2. NEW TWEET STREAM ITEM (FantasyLabs + Rotoworld)
     stream.on('tweet', (tweet) => {
       // console.log('2. liveFeed bout to send this thru socket emit -> ', tweet);
       if (!tweet.text.includes("@")){
+        if (tweet.text.includes("http")){
+          console.log('tweet text - ', tweet.text, tweet);
+          this.parseOutUrl(tweet);
+        }
         tweet.src = 'tweet-newstream';
         this.setState({
           tweetArr: [...this.state.tweetArr, tweet],
-          tweetObj: {
-            ...this.state.tweetObj,
-            [tweet.id_str]: tweet
-          },
           lastTweet: tweet
         });        
       }    
-      console.log('2. state on [NEW TWEET EVENT] ', this.state.lastTweet, this.state.tweetArr);
+      console.log('3. state on [NEW TWEET EVENT] ', this.state.lastTweet, this.state.tweetArr);
     });
 
-    // 3. NEW RSS FEED ITEM (Rotoworld)
-    feeder.on('new-item', (item) => {
-      console.log('3a - rss item - ', item);
-      item.text = item.summary;
-      item.src = 'rss';
-      let tmpId = item['rss']['guid']['#'];
-      this.setState({
-        tweetArr: [...this.state.tweetArr, item],
-        tweetObj: {
-          ...this.state.tweetObj,
-          [tmpId]: item
-        },
-        lastTweet: item
-      }, console.log('new state after rss - ', this.state.tweetArr));
-      console.log('3. [RSS feed item] - ', item.text, ' | state is - ', this.state.lastTweet, this.state.tweetArr);
-    });
   }
 
   render() {
-    console.log('---> 4. final news items on render - ', this.state.tweetArr);
-    const newsItems = this.state.tweetArr.map((item) => {
+    // console.log('---> 1. before sort - ', this.state.tweetArr);
+    // for (var i = 0; i < this.state.tweetArr.length; i++){
+    //   if (i && this.state.tweetArr[i])
+    //     console.log(`${this.state.tweetArr[i].created_at} | ${this.state.tweetArr[i].text} | ${this.state.tweetArr[i].src}`);
+    // }
+
+    var sortedItems = this.state.tweetArr.sort((a,b) => {return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()})
+    console.log('2 after sort - ', sortedItems);
+    for (var i = 0; i < sortedItems.length; i++){
+      if (i && sortedItems[i])
+        console.log(`${sortedItems[i].created_at} | ${sortedItems[i].text} | ${sortedItems[i].src}`);
+    }
+    const newsItems = sortedItems.map((item) => {
       return (
         <div className="ticker__item" key={item.id_str}>{item.text}</div>
       );
