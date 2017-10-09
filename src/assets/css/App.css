@@ -1,4 +1,4 @@
-h1 {
+h3 {
   font-family: helvetica;
   font-weight: 200;
 }
@@ -7,6 +7,33 @@ h1 {
   font-family: helvetica;
   list-style: none;
   text-align: center;
+}
+
+.latest {
+  margin-bottom: 0px;
+  text-align: center;
+  font-family: helvetica;
+}
+
+.latestitem {
+  margin-top: 10px;
+  font-family: helvetica;
+}
+
+.recentitems {
+  margin-top: -10px
+}
+
+.recentlist {
+  padding-left: 5px;
+  font-family: helvetica;
+}
+
+.recentlistitem {
+  list-style: none;
+  font-family: helvetica;
+  font-size: 13.5px;
+  padding: 1px;
 }
 
 @-webkit-keyframes ticker {

@@ -45,7 +45,7 @@ class App extends React.Component {
   componentDidMount() {
 
     // 1. BACK LOG of FantasyLab TWEETS
-    T.get('statuses/user_timeline', { screen_name: 'FantasyLabsNFL', count: 50, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
+    T.get('statuses/user_timeline', { screen_name: 'FantasyLabsNFL', count: 30, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
       data.forEach((item) => {
         let currentDate = new Date(item.created_at).getTime();
         if (currentDate > twelveHoursAgo){
@@ -68,7 +68,7 @@ class App extends React.Component {
       console.log('1a. this.state.tweetArr [FINAL LIST OF INITIAL BACK LOG!!!!]- ', this.state.lastTweet, this.state.tweetArr);
     });
 
-    T.get('statuses/user_timeline', { screen_name: 'Rotoworld_Fb', count: 50, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
+    T.get('statuses/user_timeline', { screen_name: 'Rotoworld_Fb', count: 30, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
       data.forEach((item) => {
         let currentDate = new Date(item.created_at).getTime();
         if (currentDate > twelveHoursAgo){
@@ -111,39 +111,60 @@ class App extends React.Component {
 
   }
 
-  render() {
-    // console.log('---> 1. before sort - ', this.state.tweetArr);
-    // for (var i = 0; i < this.state.tweetArr.length; i++){
-    //   if (i && this.state.tweetArr[i])
-    //     console.log(`${this.state.tweetArr[i].created_at} | ${this.state.tweetArr[i].text} | ${this.state.tweetArr[i].src}`);
-    // }
-
-    var sortedItems = this.state.tweetArr.sort((a,b) => {return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()})
-    console.log('2 after sort - ', sortedItems);
+  printItems(sortedItems) {
     for (var i = 0; i < sortedItems.length; i++){
       if (i && sortedItems[i])
         console.log(`${sortedItems[i].created_at} | ${sortedItems[i].text} | ${sortedItems[i].src}`);
     }
-    const newsItems = sortedItems.map((item) => {
+  }
+
+  tickerItems() {
+    let sortedItems = this.state.tweetArr.sort((a,b) => {return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()});
+    console.log('afeter sort - ', sortedItems);
+    this.printItems(sortedItems);
+    const tickerItems = sortedItems.map((item, idx) => {
       return (
         <div className="ticker__item" key={item.id_str}>{item.text}</div>
       );
     });
+    return tickerItems;
+  }
 
+  recentItems(number) {
+    let sortedItems = this.state.tweetArr.sort((a,b) => {return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()});
+    const recentItems = sortedItems.slice(1, number+1).map((item, idx) => {
+      return (
+        <li className="recentlistitem" key={item.id_str}>-{item.text}</li>
+      );
+    });
+    return(
+      <ul className="recentlist">
+        {recentItems}
+      </ul>
+    )
+  }
+
+  latestItem() {
     let breakingNewsItem = null;
     if (this.state.lastTweet.text){
-      console.log('5. breaking news item - ', this.state.lastTweet);
-      breakingNewsItem = <div><h1 className="centered">LATEST:</h1><h3 className="centered">{this.state.lastTweet.text}</h3></div>;
+      breakingNewsItem = <div><h3 className="centered; latest">LATEST:</h3><h4 className="centered; latestitem">{this.state.lastTweet.text}</h4></div>;
     } else if (this.state.tweetArr.length > 0) {
-      breakingNewsItem = <div><h1 className="centered">LATEST:</h1><h3 className="centered">{this.state.tweetArr[0].text}</h3></div>
+      breakingNewsItem = <div><h3 className="centered; latest">LATEST:</h3><h4 className="centered latestitem">{this.state.tweetArr[0].text}</h4></div>
     }
+    return breakingNewsItem;
+  }
 
+
+  render() {
     return (
       <div>
-        {breakingNewsItem}
+        {this.latestItem()}
+        <div className="recentitems">
+          {this.recentItems(10)}
+        </div>
         <div className="ticker-wrap">
           <div className="ticker">
-            {newsItems}
+            {this.tickerItems()}
           </div>
         </div>
       </div>
