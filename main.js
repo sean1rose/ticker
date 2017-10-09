@@ -22,7 +22,7 @@ function createWindow() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1024/2, height: 768/2, show: false, closable: true, resizable: true
+    width: 1024/2, height: 768/2, show: false, closable: true, resizable: true, moveable: true
   });
 
   // and load the index.html of the app (webpack-bundled react web app)

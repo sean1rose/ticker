@@ -97,7 +97,7 @@ class App extends React.Component {
       // console.log('2. liveFeed bout to send this thru socket emit -> ', tweet);
       if (!tweet.text.includes("@")){
         if (tweet.text.includes("http")){
-          console.log('tweet text - ', tweet.text, tweet);
+          console.log('Mew tweet text - ', tweet.text, tweet);
           this.parseOutUrl(tweet);
         }
         tweet.src = 'tweet-newstream';
@@ -118,18 +118,16 @@ class App extends React.Component {
     }
   }
 
-  tickerItems() {
-    let sortedItems = this.state.tweetArr.sort((a,b) => {return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()});
-    console.log('afeter sort - ', sortedItems);
-    this.printItems(sortedItems);
-    const tickerItems = sortedItems.map((item, idx) => {
-      return (
-        <div className="ticker__item" key={item.id_str}>{item.text}</div>
-      );
-    });
-    return tickerItems;
+  latestItem() {
+    let breakingNewsItem = null;
+    if (this.state.lastTweet.text){
+      breakingNewsItem = <div><h3 className="centered; latest">LATEST:</h3><h4 className="centered; latestitem">{this.state.lastTweet.text}</h4></div>;
+    } else if (this.state.tweetArr.length > 0) {
+      breakingNewsItem = <div><h3 className="centered; latest">LATEST:</h3><h4 className="centered latestitem">{this.state.tweetArr[0].text}</h4></div>
+    }
+    return breakingNewsItem;
   }
-
+  
   recentItems(number) {
     let sortedItems = this.state.tweetArr.sort((a,b) => {return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()});
     const recentItems = sortedItems.slice(1, number+1).map((item, idx) => {
@@ -143,15 +141,17 @@ class App extends React.Component {
       </ul>
     )
   }
-
-  latestItem() {
-    let breakingNewsItem = null;
-    if (this.state.lastTweet.text){
-      breakingNewsItem = <div><h3 className="centered; latest">LATEST:</h3><h4 className="centered; latestitem">{this.state.lastTweet.text}</h4></div>;
-    } else if (this.state.tweetArr.length > 0) {
-      breakingNewsItem = <div><h3 className="centered; latest">LATEST:</h3><h4 className="centered latestitem">{this.state.tweetArr[0].text}</h4></div>
-    }
-    return breakingNewsItem;
+  
+  tickerItems() {
+    let sortedItems = this.state.tweetArr.sort((a,b) => {return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()});
+    console.log('afeter sort - ', sortedItems);
+    this.printItems(sortedItems);
+    const tickerItems = sortedItems.map((item, idx) => {
+      return (
+        <div className="ticker__item" key={item.id_str}>{item.text}</div>
+      );
+    });
+    return tickerItems;
   }
 
 
