@@ -45,10 +45,11 @@ class App extends React.Component {
   componentDidMount() {
 
     // 1. BACK LOG of FantasyLab TWEETS
-    T.get('statuses/user_timeline', { screen_name: 'FantasyLabsNFL', count: 30, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
+    T.get('statuses/user_timeline', { screen_name: 'FantasyLabsNFL', count: 50, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
       data.forEach((item) => {
         let currentDate = new Date(item.created_at).getTime();
-        if (currentDate > twelveHoursAgo){
+        if (currentDate > oneDayAgo){
+        // if (currentDate > twelveHoursAgo){
           // run check to make sure tweet meets news-worthy criteria
           if (!item.text.includes("@")){
             // if tweet text includes url, cut out that url
@@ -68,28 +69,28 @@ class App extends React.Component {
       console.log('1a. this.state.tweetArr [FINAL LIST OF INITIAL BACK LOG!!!!]- ', this.state.lastTweet, this.state.tweetArr);
     });
 
-    T.get('statuses/user_timeline', { screen_name: 'Rotoworld_Fb', count: 30, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
-      data.forEach((item) => {
-        let currentDate = new Date(item.created_at).getTime();
-        if (currentDate > twelveHoursAgo){
-          // run check to make sure tweet meets news-worthy criteria
-          if (!item.text.includes("@")){
-            // if tweet text includes url, cut out that url
-            if (item.text.includes("http")){
-              this.parseOutUrl(item);
-            }
-            item.src = 'tweet-backlog-Rotoworld_Fb';
-            tweetsInLastHalfDay.push(item);
-          }
-        }
-      });
-      // console.log('tweets in last 1/2 day - ', tweetsInLastHalfDay);
-      this.setState({
-        // tweetArr: [...this.state.tweetArr, tweetsInLastHalfDay],
-        tweetArr: _.merge(this.state.tweetArr, tweetsInLastHalfDay)
-      });
-      console.log('1b. this.state.tweetArr [FINAL LIST OF INITIAL BACK LOG!!!!]- ', this.state.lastTweet, this.state.tweetArr);
-    });
+    // T.get('statuses/user_timeline', { screen_name: 'Rotoworld_Fb', count: 30, exclude_replies: true, include_rts: false, trim_user: true}, (err, data, response) => {
+    //   data.forEach((item) => {
+    //     let currentDate = new Date(item.created_at).getTime();
+    //     if (currentDate > twelveHoursAgo){
+    //       // run check to make sure tweet meets news-worthy criteria
+    //       if (!item.text.includes("@")){
+    //         // if tweet text includes url, cut out that url
+    //         if (item.text.includes("http")){
+    //           this.parseOutUrl(item);
+    //         }
+    //         item.src = 'tweet-backlog-Rotoworld_Fb';
+    //         tweetsInLastHalfDay.push(item);
+    //       }
+    //     }
+    //   });
+    //   // console.log('tweets in last 1/2 day - ', tweetsInLastHalfDay);
+    //   this.setState({
+    //     // tweetArr: [...this.state.tweetArr, tweetsInLastHalfDay],
+    //     tweetArr: _.merge(this.state.tweetArr, tweetsInLastHalfDay)
+    //   });
+    //   console.log('1b. this.state.tweetArr [FINAL LIST OF INITIAL BACK LOG!!!!]- ', this.state.lastTweet, this.state.tweetArr);
+    // });
 
 
     // 2. NEW TWEET STREAM ITEM (FantasyLabs + Rotoworld)

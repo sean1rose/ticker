@@ -82,8 +82,8 @@ h3 {
   animation-timing-function: linear;
   -webkit-animation-name: ticker;
   animation-name: ticker;
-  -webkit-animation-duration: 150s;
-  animation-duration: 150s;
+  -webkit-animation-duration: 300s;
+  animation-duration: 300s;
 }
 .ticker__item {
   display: inline-block;
